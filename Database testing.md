@@ -22,11 +22,13 @@
 
 10. working with data.
 
+11. mysql views.
+
 ## What is a Database application
 
 We have lots of information which need to be saved for future.
 
-register with gmail account.
+register with gmail account. 
 
 All information store in database.
 
@@ -76,15 +78,13 @@ database
 
 person 
 
-    id                  11 PK
+    id        11 PK
 
     name      vikas  
 
    email    vikaskpro7
 
-  password   abcd
-
-
+  password   defxyz 
 
 employee
 
@@ -98,7 +98,7 @@ employee
 
 moving from application to database vice-versa.
 
-3. The ACID properties validation (Atomicity, consistency, isolation, durability )
+3. The ACID properties validation ( Atomicity, consistency, isolation, durability )
 
 4. The accuracy of implemented business logics.
 
@@ -106,15 +106,15 @@ moving from application to database vice-versa.
 
 ## Database testing phases
 
-1. Test Environment setup
+1. Test Environment setup - setup the  database.
 
-2. Test Scenario Generation
+2. Test Scenario Generation - prepare testing sample data.
 
-3. Execution
+3. Execution - perform the test.
 
-4. Analysis
+4. Analysis - check the end result. 
 
-5. Log defects 
+5. Log defects - check for the error or other required logs for clerify the test success rate.
 
 ## Types of database testing
 
@@ -134,7 +134,7 @@ this is technique that validates all the elements inside the data repository. it
 
 4. Store Procedures (methods) Testing - all condition/loop applied for the required input.
 
-5. Database server validation - check configuration of database, authorization.
+5. Database server validation - check configuration of database, authorization. developer, client , tester , customer , admin, application. 
 
 ### Functional Testing
 
@@ -142,13 +142,7 @@ this is technique that validates all the elements inside the data repository. it
 
 2. login and user security - application login security, is data secured for unauthorized access, user different roles.
 
-
-
-
-
 # Mysql database
-
-
 
 ### database commands.
 
@@ -176,8 +170,6 @@ select database
 use database_name;
 ```
 
-
-
 ### table commands.
 
 list all the tables
@@ -195,7 +187,7 @@ DESC table_name;
 create table syntex
 
 ```sql
-CREATE TABLE [IF NOT EXIST] table_name(
+CREATE TABLE [IF NOT EXIST] table_name (
     col_1_definition,
     col_2_definition, 
     ....,
@@ -213,7 +205,7 @@ table example
 
 ```sql
 create table if not exists task (
-	task_id int auto_increment primary key,
+    task_id int auto_increment primary key,
     title varchar(40) not null,  
     start_date date, 
     due_date date,
@@ -227,27 +219,21 @@ AUTO_INCREMENT - it is feature of mysql which automatic increase the column valu
 
 task_id => 100 then next 101
 
-
-
 column_constraints - to limit our column to specific data. 
 
 1. primary key - it is the unique key to make a entry as unique entry and entry will recognised based on this key.
 
 2. foreign key - the key which used to create relation between two or more tables. this key belongs to another table.
 
-
-
 relations in table
 
-one to one (uni or bi )
+one to one ( uni or bi )
 
-one to many  (uni or bi )
+one to many  ( uni or bi )
 
-many to one (uni or bi )
+many to one ( uni or bi )
 
-many to many (uni or bi )
-
-
+many to many ( uni or bi )
 
 Alter table for adding new column syntex
 
@@ -286,8 +272,6 @@ Delete table
 DROP TABLE table_name;
 ```
 
-
-
 ### Working with data.
 
 Insert data into table syntex
@@ -318,7 +302,7 @@ Select title, status from task;
 update syntex
 
 ```sql
-UPDATE tbl_name SET col1_name = value1, col2_name WHERE condition;
+UPDATE tbl_name SET col1_name = value1, col2_name = value2 WHERE condition;
 ```
 
 Example
@@ -340,8 +324,6 @@ delete from task where task_id = 1;
 delete from task where title = 'learn mysql';
 ```
 
-
-
 ### Sorting data
 
 Sort the list and get data based on condition syntex
@@ -355,8 +337,6 @@ Example
 ```sql
 select * from customers order by contactFirstName ;
 ```
-
-
 
 ### Filtering data
 
@@ -384,7 +364,7 @@ Example
 select DISTINCT lastName from employees order by lastName;
 ```
 
-AND  Example
+AND  Example  
 
 ```sql
 select * from customers where country='USA' and state='CA';
@@ -432,8 +412,6 @@ IS null Example
 
 ```
 
-
-
 ### Table Joins
 
 alias is used to improve the readility of the queries.
@@ -451,8 +429,6 @@ select concat_ws(' ', lastName, firstname) AS 'Full Name' from employees;
 select concat_ws(', ', firstName, lastName) AS 'Full Name' from employees order by 'Full Name';
 ```
 
-
-
 #### JOIN clauses
 
 inner join syntex
@@ -465,14 +441,14 @@ Example
 
 ```sql
 select 
-	m.member_id, m.name AS members, 
+    m.member_id, m.name AS members, 
     c.committee_id , c.name AS committees
 from
-	members m 
+    members m 
 inner join
-	committees c 
+    committees c 
 on  
-	c.name = m.name;
+    c.name = m.name;
 ```
 
 left join syntex
@@ -485,23 +461,23 @@ Example
 
 ```sql
 select 
-	m.member_id, m.name AS members, 
+    m.member_id, m.name AS members, 
     c.committee_id , c.name AS committees
 from
-	members m 
+    members m 
 left join
-	committees c 
+    committees c 
 using(name);
 ```
 
 ```sql
 select 
-	m.member_id, m.name AS members, 
+    m.member_id, m.name AS members, 
     c.committee_id , c.name AS committees
 from
-	members m 
+    members m 
 left join
-	committees c 
+    committees c 
 using(name)
 where c.committee_id is null;
 ```
@@ -528,12 +504,12 @@ Example
 
 ```sql
 select 
-	m.member_id, m.name AS members, 
+    m.member_id, m.name AS members, 
     c.committee_id , c.name AS committees
 from
-	members m 
+    members m 
 cross join 
-	committees c;
+    committees c;
 ```
 
 self join - allow us to join two or more columns in the same table and self performed by using inner, left, right joins.
@@ -542,16 +518,187 @@ Example
 
 ```sql
 select 
-	concat(m.lastName, ', ', m.firstName) AS Manager,
+    concat(m.lastName, ', ', m.firstName) AS Manager,
     concat(e.lastName, ', ', e.firstName) AS 'Direct report'
 from 
-	employees e
+    employees e
 inner join
-	employees m ON
-	m.employeeNumber = e.reportsTo
+    employees m ON
+    m.employeeNumber = e.reportsTo
 order by
-	Manager;
+    Manager;
 ```
+
+
+
+### views
+
+views don't have any values. view is virtual table created by query by joining one or many tables.
+
+two ways to create view 
+
+1. by commandline 
+
+2. by workbench
+
+
+
+**Syntex**
+
+```sql
+create [or replace] view view_name as select col, .. from tables [where conditions];
+```
+
+Example
+
+first we try to fetch customer payment from two tables. as this query can used many times. 
+
+```sql
+select customerName, checkNumber, paymentDate, amount from customers inner join payments using (customerNumber);
+```
+
+so it is better to create a view 
+
+```sql
+create view customerPayments as select customerName, checkNumber, paymentDate, amount from customers inner join payments using (customerNumber);
+```
+
+To run the view just run the query below
+
+```mysql
+ select * from customerPayments;
+```
+
+
+
+**update view**
+
+Allow to manipulate the data tables only if table not contain elements.
+
+1.  Aggregate function like MIN MAX AVG and COUNT.
+
+2. DISTINCT
+
+3. GROUP BY
+
+4. HAVING
+
+5. UNION
+
+6. LEFT JOIN OR OUTER JOIN
+
+7. subquery
+
+8. etc.
+
+
+
+Example
+
+create table and put some values in it.
+
+```sql
+CREATE TABLE item (
+	id int auto_increment primary key,
+    name varchar(50) not null,
+    price decimal(11, 2) not null
+);
+
+insert into item (name, price) values ('laptop', 80000.00), ('Desktop', 100000.00);
+insert into item (name, price) values ('android', 80000.00), ('iphone', 100000.00);
+select * from item;
+
+```
+
+create the view with some [conditions].
+
+```sql
+create view luxuryItems as select * from item where price > 81000;
+```
+
+now run view and get list of all luxury items.
+
+```sql
+select * from luxuryItems;
+```
+
+let delete the one entry by using view.
+
+```sql
+ Delete from luxuryItems where id=4;
+```
+
+
+
+### Index
+
+ways of creating indexing
+
+while creating table
+
+**Syntex**
+
+```mysql
+create table t( 
+    col1 ...,
+    col2 ...,
+    col3 ...,
+    Index (col2, col3)
+)
+```
+
+create index on table.
+
+```mysql
+create index index_name on table_name (col_list)
+```
+
+Internally index use by default btree algorithm. and indexing cast few write in database.
+
+
+
+**Example.**
+
+To check how much rows processed while looking for the entries.
+
+```sql
+explain select employeeNumber, lastName, firstName from employees where jobtitle="Sales Rep";
+```
+
+explain element explain about the how select query run and how many row processed while performing operation. now lets create index for jobtitle.
+
+```mysql
+create index jobtitle on employees(jobtitle);
+```
+
+re-run the explain query again and compare the result.
+
+
+
+**Show index**
+
+To check index 
+
+```sql
+show indexes from table_name;
+show indexes from database_name.table_name;
+show indexes from table_name in database_name;
+show index in table_name from database_name;
+```
+
+get the index details by using where clouse.
+
+```sql
+ Show indexes from employees where visible = 'NO'
+```
+
+type of indexing 
+
+1. Unique indexing - uses unique indexes to ensure distinct values.
+
+2. prefix indexing - use the prefix index to create an index for a character strings column.
+
+
 
 
 
@@ -568,5 +715,11 @@ create a database based on car selling. in this database must have car table, cu
 4. what is insert ingnore and write query for using ignore.
 
 5. write a join query with 3 tables
-   
-   
+
+
+
+## Practical 2
+
+1. practice the indexing on the table check all different types of indexing.
+
+2. check how to use rename, drop, with check option, local & cascaded view.
