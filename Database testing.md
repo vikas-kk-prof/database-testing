@@ -689,15 +689,9 @@ type of indexing
 
 2. prefix indexing - use the prefix index to create an index for a character strings column.
 
-
-
-
-
 ## Stored procedures
 
 these are pre-compiled sql statements stored in a database. they are subroutines containing a name, a parameter list, and SQL statements.
-
-
 
 ```sql
 DELIMITER $$
@@ -708,7 +702,6 @@ BEGIN
 END$$
 
 DELIMITER ;
- 
 ```
 
 Example
@@ -724,8 +717,6 @@ END$$
 DELIMITER ;
 ```
 
-
-
 **Advantage**
 
 1. **Reduce network Traffic.**
@@ -733,8 +724,6 @@ DELIMITER ;
 2. **centralize bussiness logic in database.**
 
 3. **make the database more secure.**
-
-
 
 **Disadvantages**
 
@@ -744,13 +733,9 @@ DELIMITER ;
 
 3. **Maintenances** 
 
+### DELIMITER
 
-
-### **DELIMITER**
-
-
-
-### **Remove Procedures**
+### Remove Procedures
 
 ```sql
 DROP PROCEDURE [IF EXISTS] name;
@@ -760,9 +745,7 @@ DROP PROCEDURE [IF EXISTS] name;
 DROP PROCEDURE IF EXISTS GetCustomers;
 ```
 
-
-
-### **Declaring variables**
+### Declaring variables
 
 These are internal storage of procedure to store data from queries and use it to perform other operation.
 
@@ -775,25 +758,21 @@ DELIMITER $$
 
 CREATE PROCEDURE `getTotalOrders`()
 BEGIN
-	DECLARE TotalOrder INT DEFAULT 0;
-	
+    DECLARE TotalOrder INT DEFAULT 0;
+
     SELECT COUNT(*) INTO totalOrder FROM orders;
 
-	SELECT TotalOrder;
+    SELECT TotalOrder;
 END$$
 
 DELIMITER ;
 ```
 
-
-
-#### **Variable scope**
+#### Variable scope
 
 1. **local to procedures**
 
 2. **session** @variableName
-
-
 
 #### Assigning variable
 
@@ -801,8 +780,6 @@ DELIMITER ;
 DECLARE total INT DEFAULT 0;
 SET total = 100;
 ```
-
-
 
 ### Parameters
 
@@ -822,23 +799,19 @@ Example
 
 ```sql
 CREATE PROCEDURE `GetOrderCountByStatus`(
-	IN orderStatus VARCHAR(25),
+    IN orderStatus VARCHAR(25),
     OUT total INT
 )
 BEGIN
-	SELECT COUNT(orderNumber) INTO total FROM orders WHERE status = orderStatus;
+    SELECT COUNT(orderNumber) INTO total FROM orders WHERE status = orderStatus;
 END
 ```
-
-
 
 ### Alter procedures.
 
 procedures are not directly Alter, we need to drop and recreate it again with new changes.
 
 To make changes into stored procedure  first need to drop it and need to recreate it with new changes.
-
-
 
 ### List out all procedures.
 
@@ -851,8 +824,6 @@ SHOW PROCEDURE STATUS [LIKE 'pattern' | WHERE search_condition ]
 SHOW PROCEDURE STATUS;
 ```
 
-
-
 ### Define Conditions.
 
 In procedures sometime need to filter out the data based on condition  so todo that we have two ways.
@@ -860,8 +831,6 @@ In procedures sometime need to filter out the data based on condition  so todo t
 1. If statement
 
 2. Case statement.
-
-
 
 **If else if else Statment**
 
@@ -880,23 +849,23 @@ Example
 
 ```sql
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetCustomerLevel`(
-	IN pCustNum INT,
+    IN pCustNum INT,
     OUT pCustLvl VARCHAR(20)
 )
 BEGIN
-	DECLARE credit DECIMAL(10, 2) DEFAULT 0;
-    
+    DECLARE credit DECIMAL(10, 2) DEFAULT 0;
+
     SELECT creditLimit 
     INTO credit
     FROM customers
     WHERE customerNumber = pCustNum;
-    
+
     IF credit > 50000 THEN
-		SET pCustLvl = 'PLATINUM';
-	ELSE 
-		SET pCustLvl = 'GOLD';
-	END IF;
-    
+        SET pCustLvl = 'PLATINUM';
+    ELSE 
+        SET pCustLvl = 'GOLD';
+    END IF;
+
 END
 ```
 
@@ -904,16 +873,375 @@ run queries for output.
 
 ```sql
 SELECT customerNumber, creditLimit FROM customers WHERE creditLimit > 50000;
-    
+
 call GetCustomerLevel(200, @Level);
 select @Level;
+```
+
+**Case statement**
+
+It is similar to the switch statement in the other programming languages.
+
+**Syntex**
+
+```sql
+CASE case_value
+    WHEN when_value2 THEN statements1
+    WHEN when_value2 THEN statements2
+    ...
+    [ELSE else statement]
+END CASE;
+```
+
+if we skip the else statement then program will throw error.
+
+**Case not found for CASE statement** 
+
+To stop this error message from executing if dont have any else statement;
+
+```sql
+CASE case_value
+    WHEN when_value2 THEN statements1
+    WHEN when_value2 THEN statements2
+    ...
+    ELSE 
+        BEGIN
+        END;
+END CASE;
+```
+
+by this program not generate any ELSE case error.
+
+
+
+Example 
+
+```sql
+CREATE PROCEDURE `GetCustomerShipping`(
+	IN pCustomerNumber INT,
+    OUT pShipping VARCHAR(50)
+)
+BEGIN
+	DECLARE customerCountry VARCHAR(100);
+    
+    SELECT country
+	INTO customerCountry 
+    FROM customers
+	WHERE customerNumber = pCustomerNumber;
+        
+	CASE customerCountry
+		WHEN 'USA' THEN
+			SET pShipping = '2-day Shipping';
+        WHEN 'Canada' THEN    
+			SET pShipping = '3-day Shipping';
+		ELSE
+			SET pShipping = '5-day Shipping';
+	END CASE;
+END
+```
+
+To running above run below query
+
+```sql
+call GetCustomerShipping(234, @Shipping);
+select @Shipping;
+```
+
+
+
+### Loops
+
+Loops are similar to performing same many times, like writing on paper even the content of writing will change but process will be same.
+
+1. While loop
+
+2. Repeat loop
+
+3. leave statement.
+
+
+
+**While loop**
+
+**syntex**
+
+```sql
+[begin_label:] 
+    WHILE search_condition 
+    DO 
+        ...
+        ...
+ END WHILE
+[end_label]
+```
+
+Example
+
+```sql
+CREATE PROCEDURE `simpleLoop`()
+BEGIN
+	DECLARE x INT DEFAULT 1;
+    DECLARE str VARCHAR(255) DEFAULT '';
+    
+    loop_label: LOOP
+		IF x > 10 THEN
+			LEAVE loop_label;
+		END IF;
+		
+        SET x = x + 1;
+        
+        IF (x mod 2) THEN
+			ITERATE loop_label;
+		ELSE 
+			SET str = CONCAT(str, x, ',');
+		END IF;
+        
+	END lOOP;
+    
+    SELECT str;
+END
+```
+
+
+
+**Repeat loop**
+
+IT is similar to the while loop but it throw least one output or response on first execution.
+
+**Syntex**
+
+```sql
+[begin_label:] REPEAT
+        statements
+        ...
+        ...
+ UNTIL search_condition
+ END REPEAT
+[end_label]
+
+```
+
+Example
+
+```sql
+CREATE PROCEDURE `simpleRepeat`()
+BEGIN
+	DECLARE counter INT DEFAULT 1;
+    DECLARE outputText VARCHAR(255) DEFAULT '';
+    
+    REPEAT
+		SET outputText = CONCAT(outputText, counter, ',');
+		SET counter = counter + 1;
+		
+	UNTIL counter >= 10
+	END REPEAT;
+    
+    SELECT outputText;
+END
+```
+
+
+
+## Stored Functions
+
+It is similar to stored procedures but can executed inside the query.
+
+**Syntex**
+
+```sql
+CREATE FUNCTION fun_name(
+    param1,
+    param2, 
+    ...
+)
+RETURN datatype
+[NOT] DETERMINSTIC
+BEGIN
+    statements
+END $$
+
+
+```
+
+Example
+
+```sql
+CREATE FUNCTION `CustomerLevel`(
+	credit DECIMAL(10, 2)
+) RETURNS varchar(20) CHARSET latin1
+    DETERMINISTIC
+BEGIN
+	DECLARE CustLvl VARCHAR(20);
+    
+	IF credit > 50000 THEN
+		SET CustLvl = 'PLATINUM';
+	ELSEIF (credit >= 50000 AND  credit <= 50000) THEN
+		SET CustLvl = 'GOLD';
+	ELSE
+		SET CustLvl = 'SILVER';
+	END IF;
+    
+	RETURN (CustLvl);
+END
+```
+
+To execute running query
+
+```sql
+select customerName, CustomerLevel(creditLimit) from customers;
+```
+
+### Drop function
+
+To drop the function need to follow the same step as do in stored procedures.
+
+### Listing Stored function
+
+```sql
+SHOW FUNCTION STATUS [LIKE 'pattern' | WHERE search_condition ]
+
+
+SHOW FUNCTION STATUS;
 ```
 
 
 
 
 
+## MySQL triggers
+
+A trigger is a stored program invoked automatically in reponse to an each event such as insert, update and delete that occurs in the associated table.
+
+there are two type's of triggers 
+
+1. row-level - it will invoked when row of table have any changes, it invoked 100 times for the 100 rows effected. 
+
+2. statement-level - it will invoked when each transaction executed regardless of how many rows are effected.
+
+**NOTE** - mysql only support row-level
+
+
+
+Advantages.
+
+Disadvantages.
+
+
+
+### Create trigger
+
+**Syntex**
+
+```sql
+CREATE TRIGGER trigger_name
+{ BEFORE | AFTER } {INSERT | UPDATE | DELETE }
+ON table_name FOR EACH ROW 
+trigger_body;
+```
+
+----
+
+**Before Insert syntex**
+
+```sql
+CREATE TRIGGER trigger_name
+BEFORE INSERT 
+ON table_name FOR EACH ROW 
+trigger_body;
+```
+
+**after Insert syntex**
+
+```sql
+CREATE TRIGGER trigger_name
+AFTER INSERT 
+ON table_name FOR EACH ROW 
+trigger_body;
+```
+
+----
+
+**Before update syntex**
+
+```sql
+CREATE TRIGGER trigger_name
+BEFORE UPDATE 
+ON table_name FOR EACH ROW 
+trigger_body;
+```
+
+**Example**
+
+```sql
+CREATE TRIGGER before_employee_update
+	BEFORE UPDATE ON employees
+    FOR EACH ROW
+INSERT INTO emp_audit
+SET action = 'update',
+	employeeNumber = OLD.employeeNumber,
+    lastName = OLD.lastName,
+    Changedate = NOW();
+```
+
+To check any changes just execute the below queries.
+
+```sql
+select * from employees;
+
+update employees set lastName = 'Patterson' where employeeNumber = 1002;
+
+select * from emp_audit;
+```
+
+
+
+**after update syntex**
+
+```sql
+CREATE TRIGGER trigger_name
+AFTER UPDATE ON table_name FOR EACH ROW 
+trigger_body;
+```
+
+-----
+
+**Before delete syntex**
+
+```sql
+CREATE TRIGGER trigger_name
+BEFORE DELETE 
+ON table_name FOR EACH ROW 
+trigger_body;
+```
+
+**after delete syntex**
+
+```sql
+CREATE TRIGGER trigger_name
+AFTER DELETE 
+ON table_name FOR EACH ROW 
+trigger_body;
+```
+
+### DROP trigger
+
+```sql
+DROP TRIGGER [IF EXISTS] [schema_name.] trigger_name;
+```
+
+
+
+### Show trigger
+
+```sql
+SHOW TRIGGERS;
+```
+
+
+
 # practical
+
+## Practical 1
 
 create a database based on car selling. in this database must have car table, customer, sellers, shop_locations. and make the relation between the cars and sellers (one to many).
 
@@ -932,3 +1260,9 @@ create a database based on car selling. in this database must have car table, cu
 1. practice the indexing on the table check all different types of indexing.
 
 2. check how to use rename, drop, with check option, local & cascaded view.
+
+## Practical 3
+
+1. Read and practice from Stored procedures upto triggers and update all the code block with you own practical example.
+
+2. Check about the what are Event in mysql, how to create and use it.
