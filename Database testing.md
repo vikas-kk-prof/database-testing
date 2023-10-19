@@ -24,6 +24,12 @@
 
 11. mysql views.
 
+12.  Stored procedures
+
+13. triggers
+
+14. functions
+
 ## What is a Database application
 
 We have lots of information which need to be saved for future.
@@ -529,8 +535,6 @@ order by
     Manager;
 ```
 
-
-
 ### views
 
 views don't have any values. view is virtual table created by query by joining one or many tables.
@@ -540,8 +544,6 @@ two ways to create view
 1. by commandline 
 
 2. by workbench
-
-
 
 **Syntex**
 
@@ -569,13 +571,11 @@ To run the view just run the query below
  select * from customerPayments;
 ```
 
-
-
 **update view**
 
 Allow to manipulate the data tables only if table not contain elements.
 
-1.  Aggregate function like MIN MAX AVG and COUNT.
+1. Aggregate function like MIN MAX AVG and COUNT.
 
 2. DISTINCT
 
@@ -591,15 +591,13 @@ Allow to manipulate the data tables only if table not contain elements.
 
 8. etc.
 
-
-
 Example
 
 create table and put some values in it.
 
 ```sql
 CREATE TABLE item (
-	id int auto_increment primary key,
+    id int auto_increment primary key,
     name varchar(50) not null,
     price decimal(11, 2) not null
 );
@@ -607,7 +605,6 @@ CREATE TABLE item (
 insert into item (name, price) values ('laptop', 80000.00), ('Desktop', 100000.00);
 insert into item (name, price) values ('android', 80000.00), ('iphone', 100000.00);
 select * from item;
-
 ```
 
 create the view with some [conditions].
@@ -627,8 +624,6 @@ let delete the one entry by using view.
 ```sql
  Delete from luxuryItems where id=4;
 ```
-
-
 
 ### Index
 
@@ -655,8 +650,6 @@ create index index_name on table_name (col_list)
 
 Internally index use by default btree algorithm. and indexing cast few write in database.
 
-
-
 **Example.**
 
 To check how much rows processed while looking for the entries.
@@ -672,8 +665,6 @@ create index jobtitle on employees(jobtitle);
 ```
 
 re-run the explain query again and compare the result.
-
-
 
 **Show index**
 
@@ -702,6 +693,226 @@ type of indexing
 
 
 
+## Stored procedures
+
+these are pre-compiled sql statements stored in a database. they are subroutines containing a name, a parameter list, and SQL statements.
+
+
+
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE [IF NOT EXISTS] name(parameters)
+BEGIN 
+    SQL statements (queries).
+END$$
+
+DELIMITER ;
+ 
+```
+
+Example
+
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE GetCustomers()
+BEGIN 
+    select customerName, contactFirstName, contactLastName, phone from customers;
+END$$
+
+DELIMITER ;
+```
+
+
+
+**Advantage**
+
+1. **Reduce network Traffic.**
+
+2. **centralize bussiness logic in database.**
+
+3. **make the database more secure.**
+
+
+
+**Disadvantages**
+
+1. **Resource usage** - cache memory.
+
+2. **Troubleshooting** 
+
+3. **Maintenances** 
+
+
+
+### **DELIMITER**
+
+
+
+### **Remove Procedures**
+
+```sql
+DROP PROCEDURE [IF EXISTS] name;
+```
+
+```sql
+DROP PROCEDURE IF EXISTS GetCustomers;
+```
+
+
+
+### **Declaring variables**
+
+These are internal storage of procedure to store data from queries and use it to perform other operation.
+
+```sql
+DECLARE var_name datatype(size) [DEFAULT value];
+```
+
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE `getTotalOrders`()
+BEGIN
+	DECLARE TotalOrder INT DEFAULT 0;
+	
+    SELECT COUNT(*) INTO totalOrder FROM orders;
+
+	SELECT TotalOrder;
+END$$
+
+DELIMITER ;
+```
+
+
+
+#### **Variable scope**
+
+1. **local to procedures**
+
+2. **session** @variableName
+
+
+
+#### Assigning variable
+
+```sql
+DECLARE total INT DEFAULT 0;
+SET total = 100;
+```
+
+
+
+### Parameters
+
+It is way to send input to the stored procedures. there are some rules to define parameters.
+
+1. IN     - input for the stored procedure.
+
+2. OUT - send back the parameter to the calling program.
+
+3. INOUT - these parameter able to perform both in/out action.
+
+```sql
+[IN | OUT | INOUT] parameterName datatype[(length)]
+```
+
+Example
+
+```sql
+CREATE PROCEDURE `GetOrderCountByStatus`(
+	IN orderStatus VARCHAR(25),
+    OUT total INT
+)
+BEGIN
+	SELECT COUNT(orderNumber) INTO total FROM orders WHERE status = orderStatus;
+END
+```
+
+
+
+### Alter procedures.
+
+procedures are not directly Alter, we need to drop and recreate it again with new changes.
+
+To make changes into stored procedure  first need to drop it and need to recreate it with new changes.
+
+
+
+### List out all procedures.
+
+it will list all the procedures already created in database.
+
+```sql
+SHOW PROCEDURE STATUS [LIKE 'pattern' | WHERE search_condition ]
+
+
+SHOW PROCEDURE STATUS;
+```
+
+
+
+### Define Conditions.
+
+In procedures sometime need to filter out the data based on condition  so todo that we have two ways.
+
+1. If statement
+
+2. Case statement.
+
+
+
+**If else if else Statment**
+
+```sql
+IF condition THEN
+    statements;
+ELSEIF  condition THEN
+    statements;
+...
+ELSE 
+    statements;
+END IF;
+```
+
+Example
+
+```sql
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetCustomerLevel`(
+	IN pCustNum INT,
+    OUT pCustLvl VARCHAR(20)
+)
+BEGIN
+	DECLARE credit DECIMAL(10, 2) DEFAULT 0;
+    
+    SELECT creditLimit 
+    INTO credit
+    FROM customers
+    WHERE customerNumber = pCustNum;
+    
+    IF credit > 50000 THEN
+		SET pCustLvl = 'PLATINUM';
+	ELSE 
+		SET pCustLvl = 'GOLD';
+	END IF;
+    
+END
+```
+
+run queries for output.
+
+```sql
+SELECT customerNumber, creditLimit FROM customers WHERE creditLimit > 50000;
+    
+call GetCustomerLevel(200, @Level);
+select @Level;
+```
+
+
+
+
+
 # practical
 
 create a database based on car selling. in this database must have car table, customer, sellers, shop_locations. and make the relation between the cars and sellers (one to many).
@@ -715,8 +926,6 @@ create a database based on car selling. in this database must have car table, cu
 4. what is insert ingnore and write query for using ignore.
 
 5. write a join query with 3 tables
-
-
 
 ## Practical 2
 
